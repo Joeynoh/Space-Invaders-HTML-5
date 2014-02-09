@@ -8,110 +8,32 @@ implemented by Adelino Lobão
 		<title>Space Invaders</title>
 		<link rel="stylesheet" href="style/style_space.css" />
 		<link rel="stylesheet" href="style/normalize.css"/>
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	</head>
 	<body>
 		<canvas id="content"></canvas>
 <script type="text/javascript">
-		/**
- * File keyhandler.js
- * implemented by Adelino Lobão
- * 14/01/2012
- */
 
-/**
- * Class KeyHandler
- */
-function KeyHandler() {
-	//define the Z key
- 	this.Z_KEY = 122;
- 	this.z_KEY = 90;
- 	//define the X key
- 	this.X_KEY = 120;
- 	this.x_KEY = 88;
- 	//define the space key
- 	this.SPACE_KEY = 32;
-
- 	/**
- 	 * Handle the events when a key is pressed
- 	 * @param e - event
- 	 * @param player - player
- 	 */
- 	this.keyPress = function(e) {
- 		keyPressed = e.which ? e.which : window.event.keyCode;
-
- 		switch(keyPressed) {
- 			case this.Z_KEY:
- 			case this.z_KEY:
- 				player.movingLeft = true;
- 				break;
- 			case this.X_KEY:
- 			case this.x_KEY:
- 				player.movingRight = true;
- 				break;
- 			case this.SPACE_KEY:
- 				lasers[lasers.length] = new Laser(player);
- 				break;
- 		}
- 	}
-
- 	/**
- 	 * Handle events when key is released
- 	 * @param e - event
- 	 */
- 	this.keyUp = function(e) {
- 		keyPressed = e.which ? e.which : window.event.keyCode;
-
- 		switch(keyPressed) {
- 			case this.Z_KEY:
- 			case this.z_KEY:
- 				player.movingLeft = false;
- 				break;
- 			case this.X_KEY:
- 			case this.x_KEY:
- 				player.movingRight = false;
- 				break;
- 		}
- 	}
-}
-
-/**
- * File colision.js
- * implemented by Adelino Lobão
- * 20/01/2012
- */
-
- /**
-  * Class ColisionHandler
-  */
- function ColisionHandler() {
-
- 	/**
- 	 * Checks the colision between two objects
- 	 * @param obj1 - first object
- 	 * @param obj2 - second object
- 	 */
- 	this.detectColisionBetweenObjects = function(obj1, obj2) {
- 		if((obj1.getPositionY() + obj1.height) < obj2.getPositionY()) {
- 			return false;
- 		}
- 		else if(obj1.getPositionY() > (obj2.getPositionY() + obj2.height)) {
- 			return false;
- 		}
- 		else if((obj1.getPositionX() + obj1.width) < obj2.getPositionX()) {
- 			return false;
- 		}
- 		else if(obj1.getPositionX() > (obj2.getPositionX() + obj2.width)) {
- 			return false;
- 		}
- 		return true;
- 	}
- }
- 
- /**
- * File enemy.js
- * implemented by Adelino Lobão
- * 19/01/2012
- */
+		;$(function(){
+			
+			const FRAME_RATE = 50;
+			
+			var $window = $(window),
+					w = $window.width(),
+					h = $window.height(),
+			
+					gameLoop,
+					intervalTime = 1000 / FRAME_RATE,
+			 		previousAction = 'left',
+					canvas = document.getElementById("content"),
+					context = canvas.getContext("2d"),
+					player = new Player(),
+					lasers = [],
+					enemies = [];		
+			
+			canvas.width = w;
+			canvas.height = h;
 
 /**
  * Class Enemy
@@ -174,7 +96,7 @@ function Enemy(initPosX, initPosY) {
 	this.checkStep = function() {
 		if(sprite.x <= 10 && currentAction == 'left') {
 			currentAction = 'right';
-		}else if(sprite.x >= (WINDOW_WIDTH - 10) && currentAction == 'right') {
+		}else if(sprite.x >= (w - 10) && currentAction == 'right') {
 			currentAction = 'left';
 		}
 		return currentAction;
@@ -194,12 +116,6 @@ function Enemy(initPosX, initPosY) {
 	 	return sprite.y;
 	 }
 }
-
-/**
- * File sprite.js
- * implemented by Adelino Lobão
- * 14/01/2012
- */
 
  /**
   * Class Sprite
@@ -241,7 +157,7 @@ function Sprite(increment) {
 	 * @param posY - position yy
 	 */
 	this.setPosition = function(posX, posY) {
-		if((posX > 0) && (posX < WINDOW_WIDTH)) { //check the position boundaries
+		if((posX > 0) && (posX < w)) { //check the position boundaries
 			this.x = posX;
 	 		this.y = posY;
 		}
@@ -281,12 +197,6 @@ function Sprite(increment) {
 }
 
 /**
- * File laser.js
- * implemented by Adelino Lobão
- * 10/01/2012
- */
-
-/**
  * Class Laser
  * @param player - player object
  */
@@ -307,7 +217,7 @@ function Laser(player) {
 	 */
 	this.draw = function() {
 		//context style
-		context.fillStyle = "red";
+		context.fillStyle = "white";
 		//draw the rectangle laser
 		context.fillRect(this.x, this.y, this.width, this.height);	
 	}
@@ -337,12 +247,6 @@ function Laser(player) {
 	 }
 }
 
-/**
- * File player.js
- * implemented by Adelino Lobão
- * 10/01/2012
- */
-
  /**
   * Class Player
   */
@@ -365,7 +269,7 @@ function Player() {
 	//set sprite image and size
 	sprite.initImage('script/images/ship.png', 26, 16);
 	//set initial position of the sprite
-	sprite.initPosition(WINDOW_WIDTH / 2, WINDOW_HEIGHT - 100);
+	sprite.initPosition(w / 2, h - 100);
 
 	/**
 	 * Draw the player
@@ -403,170 +307,151 @@ function Player() {
 	 }
 }
 
-/**
- * File game.js
- * implemented by Adelino Lobão
- * 14/01/2012
- */
+			var f = {
+				
+				init: function(){
+					
+					$window.on({
+						keydown: function(event){
+							switch(event.keyCode) {
+								case 37:
+									player.movingLeft = true;
+									break;
+								case 39:
+									player.movingRight = true;
+									break;
+								case 32:
+									lasers[lasers.length] = new Laser(player);
+									break;
+							}
+						},
+						keyup: function(event){
+							switch(event.keyCode) {
+								case 37:
+									player.movingLeft = false;
+									break;
+								case 39:
+									player.movingRight = false;
+									break;
+							}	
+						}
+					});
+					
+					f.createEnemies(18, 5);
+					f.run();				
+				},
+				
+				run: function(){
+					f.drawWindow();
+					player.draw();
+					f.draw();
+					f.detectColisions();
+					gameLoop = setTimeout(f.run, intervalTime);
+				},
+				
+				draw: function() {
+					var currentAction = '';
+				
+					if(player.movingLeft)	player.moveLeft();
+					else if(player.movingRight)	player.moveRight();
+				
+					for(index in lasers) {
+						lasers[index].draw();
+						if(lasers[index].step()){
+							lasers.splice(index, 1);
+						}
+					}
+				
+					for(index in enemies) {
+						currentAction = enemies[index].checkStep();
+						if(currentAction != previousAction){
+							break;
+						}
+					}
+				
+					for(index in enemies) {
+						enemies[index].draw();
+						if(currentAction != previousAction){
+							enemies[index].jump();
+						}else{
+							enemies[index].step();		
+						}
+					}
+					previousAction = currentAction;
+				},
+				
+				detectColisions: function() {
+					for(indexLaser in lasers) {
+						for(indexEnemy in enemies) {
+							if(f.colisionHandler(lasers[indexLaser], enemies[indexEnemy])) {
+								lasers.splice(indexLaser, 1);
+								enemies.splice(indexEnemy, 1);
+								break;
+							}
+						}
+					}
+				},
+				
+				colisionHandler: function(obj1, obj2){
+					if((obj1.getPositionY() + obj1.height) < obj2.getPositionY()) {
+						return false;
+					}
+					else if(obj1.getPositionY() > (obj2.getPositionY() + obj2.height)) {
+						return false;
+					}
+					else if((obj1.getPositionX() + obj1.width) < obj2.getPositionX()) {
+						return false;
+					}
+					else if(obj1.getPositionX() > (obj2.getPositionX() + obj2.width)) {
+						return false;
+					}
+					return true;
+				},
+				
+				drawWindow: function() {
+					context.fillStyle = '#2fbee2';
+					context.clearRect(0, 0, w, h);
+					context.beginPath();
+					context.rect(0, 0, w, h);
+					context.closePath();
+					context.fill();
+				},
+				
+				createEnemies: function(numRows, numCols) {
+					
+					var refPosX = (w / 2),
+							refPosY = (h / 10);
+							
+					var fof = [
+						[0, 0], [2, 0], [0, 1], [2, 1], [0, 2], [1, 2], [2, 2], [2, 3], [2, 4], // 4
+						[4, 0], [5, 0], [6, 0], [4, 1], [6, 1], [4, 2], [6, 2], [4, 3], [6, 3], [4, 4], [5, 4], [6, 4], // 0
+						[8, 0], [10, 0], [8, 1], [10, 1], [8, 2], [9, 2], [10, 2], [10, 3], [10, 4] // 4
+					];
+					
+					for(var i = 0; i < fof.length; i++){
+						var posX = refPosX + (40 * fof[i][0]);
+						var posY = refPosY + (40 * fof[i][1]);
+						enemies[enemies.length] = new Enemy(posX, posY);
+					}
+					
+					/*for(var x = 0;  x < numRows; ++x) {
+						for(var y = 0; y < numCols; ++y) {
+							var posX = refPosX + (40 * x);
+							var posY = refPosY + (40 * y);
+							if(x % 2 == 0){
+								enemies[enemies.length] = new Space(posX, posY);
+							}else{ 
+								enemies[enemies.length] = new Enemy(posX, posY);
+							}
+						}
+					}*/
+				}
+				
+			};
+			
+			f.init();
 
-/**
- * Draw the window game
- */
-var drawWindow = function() {
- 	context.fillStyle = '#000';
-	context.clearRect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	context.beginPath();
-	context.rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	context.closePath();
-	context.fill();
-}
-
-/**
- * Create an horde of enemies, the horde is divided in columns and rows
- * @param numRows - indicate the number of rows
- * @param numCols - indicate the number of columns
- */
-var createEnemies = function(numRows, numCols) {
-	//reference position xx
-	var refPosX = (WINDOW_WIDTH / 2); 
-	//reference position yy
-	var refPosY = (WINDOW_HEIGHT / 10);
-	//add enemies horde
-	for(var x = 0;  x < numRows; ++x) {
-		for(var y = 0; y < numCols; ++y) {
-			//position xx
-			var posX = refPosX + (40 * x);
-			//position yy
-			var posY = refPosY + (40 * y);
-			//add an enemy to the array
-			enemies[enemies.length] = new Enemy(posX, posY);
-		}
-	}
-}
-
-/**
- * Animate elements
- */
-var animate = function() {
-	var currentAction = '';
-
-	if(player.movingLeft)	player.moveLeft();
-	else if(player.movingRight)	player.moveRight();
-
-	//iterate through all the lasers
-	for(index in lasers) {
-		//draw laser
-		lasers[index].draw();
-		//simulate one step
-		if(lasers[index].step()){
-			lasers.splice(index, 1);
-		}
-	}
-
-	//check the movement of the enemies
-	for(index in enemies) {
-		currentAction = enemies[index].checkStep();
-		if(currentAction != previousAction){
-			break;
-		}
-	}
-
-	//iterate through all the enemies
-	for(index in enemies) {
-		//draw enemy
-		enemies[index].draw();
-		//jump enemy
-		if(currentAction != previousAction){
-			enemies[index].jump();
-		}else{
-			//simulate step
-			enemies[index].step();		
-		}
-	}
-	previousAction = currentAction;
-}
-
-/**
- * Detect colisions between the lasers and enemies
- */
-var detectColisions = function() {
-	for(indexLaser in lasers) {
-		for(indexEnemy in enemies) {
-			if(colisionHandler.detectColisionBetweenObjects(lasers[indexLaser], enemies[indexEnemy])) {
-				lasers.splice(indexLaser, 1);
-				enemies.splice(indexEnemy, 1);
-				break;
-			}
-		}
-	}
-}
-
-/**
- * Run the game
- */
-var runGame = function() {
- 	//draw the window game
- 	drawWindow();
- 	//draw the player
-	player.draw();
-	//animate all the elements
-	animate();
-	//check colisions
-	detectColisions();
-	//set timeout function
-	gameLoop = setTimeout(runGame, intervalTime);
-}
-
-//window width
-const WINDOW_WIDTH = 1000;
-//window height
-const WINDOW_HEIGHT = 600;
-//frame rate
-const FRAME_RATE = 50;
-
-//game loop
-var gameLoop;
-//interval time
-var intervalTime = 1000 / FRAME_RATE;
-
-//previous action of enemies
-var previousAction = 'left';
-
-//get frame window
-var frameWindow = document.getElementById("content");
-//frame window width
-frameWindow.width = WINDOW_WIDTH;
-//frame window height
-frameWindow.height = WINDOW_HEIGHT;
-//get context
-var context = frameWindow.getContext("2d");
-
-//keyhandler object
-var keyHandler = new KeyHandler();
-//colisionhandler object
-var colisionHandler = new ColisionHandler();
-//player object
-var player = new Player();
-//array that store the lasers
-var lasers = new Array();
-//array that store the enemies
-var enemies = new Array();
-
-//add enemies
-createEnemies(6, 6);
-
-//handle events when the a key is pressed
-document.onkeypress = function(e) {
-	keyHandler.keyPress(e);	
-}
-
-//handle events when the key is released
-document.onkeyup = function(e) {
-	keyHandler.keyUp(e);
-}
-
-//run the game
-runGame();
+		});
 
 		</script>
 	</body>
